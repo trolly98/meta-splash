@@ -4,9 +4,10 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SPLASH_IMAGES_forcevariable = "file://${SPLASH_IMAGE_NAME} \
                                file://${SPLASH_IMAGE_NAME};outsuffix=${MACHINE_PSPLASH_PKG} \
                               "
-
+SRC_URI += "file://psplash-colors.h \
+	    file://psplash-bar-img.png"
+	    
 # TASKS
-
 def setPsplashColors(srcdir, BACKGROUND_COLOR, TEXT_COLOR, BAR_COLOR, BAR_BACKGROUND_COLOR):
     import re
     import stat
@@ -25,6 +26,16 @@ def setPsplashColors(srcdir, BACKGROUND_COLOR, TEXT_COLOR, BAR_COLOR, BAR_BACKGR
     f = open(path, "w")
     f.write(psplash_colors)
     f.close()
+
+do_configure_append () {
+	cd ${S}
+	cp ../psplash-colors.h ./
+	# strip the -img suffix from the bar png -- we could just store the
+	# file under that suffix-less name, but that would make it confusing
+	# for anyone updating the assets
+	cp ../psplash-bar-img.png ./psplash-bar.png
+	./make-image-header.sh ./psplash-bar.png BAR
+}
 
 python do_display_banner() {
     bb.plain("***********************************************");
